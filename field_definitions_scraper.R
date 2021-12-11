@@ -40,6 +40,7 @@ library(tidyr)
 #   etc...
 # ]
 
+# scraped from https://ffiec.cfpb.gov/documentation/2020/lar-data-fields/
 # just copied the file manually cause I don't want to deal with the javascript on the HMDA site right now...
 hmda <- read_html('./hmda_fields_2020.html')
 
