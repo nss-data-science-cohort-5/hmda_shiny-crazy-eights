@@ -1,4 +1,5 @@
 library(rvest)
+library(tidyr)
 
 ##################
 # Html structure
@@ -42,5 +43,16 @@ library(rvest)
 # just copied the file manually cause I don't want to deal with the javascript on the HMDA site right now...
 hmda <- read_html('./hmda_fields_2020.html')
 
-field_names <- hmda %>% html_elements('h3')
+field_names <- hmda %>% html_elements('h3 a') %>% html_text2()
+
+field_values <- hmda %>% html_elements('ul li ul') %>% html_text2()
+
+data <- data.frame(
+  field_name = field_names, 
+  field_values = field_values) %>% 
+  separate_rows(field_values, 
+                sep = "\n", 
+                convert = TRUE) %>% 
+  write.csv('./field_definitions.csv')
+
 
