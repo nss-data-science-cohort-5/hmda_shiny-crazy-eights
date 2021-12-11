@@ -53,6 +53,12 @@ data <- data.frame(
   separate_rows(field_values, 
                 sep = "\n", 
                 convert = TRUE) %>% 
-  write.csv('./field_definitions.csv')
+  separate(field_values, 
+           c("categorical_value", "description"), 
+           extra = "drop", 
+           fill = "right",
+           sep=" - ") 
+
+write.csv(data, './field_definitions.csv')
 
 
