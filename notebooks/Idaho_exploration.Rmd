@@ -1,4 +1,7 @@
 
+		-- IDAHO EXPLORATION -- ROSS K.--
+
+# https://github.com/nss-data-science-cohort-5/hmda_shiny-crazy-eights/blob/ross-branch/notebooks/Idaho_exploration.Rmd
 
 ```{r}
 library(shiny)
@@ -9,100 +12,68 @@ library(tidyverse)
 idaho_2020 <- read.csv('../data/state_ID.csv')
 ```
 
+
 ```{r}
-dim(idaho_2020)
+field_defs <- read_csv('../data/field_definitions.csv')
+field_defs <- field_defs %>%
+  filter(!is.na(description))
+```
+
+
+# PART 1a - MINIMUM VIABLE PRODUCT - DEMOGRAPHICS
+
+
+```{r}
+# PERCENTAGES OF LOANS APPLIED FOR BY AGE
+idaho_age_counts <- idaho_2020 %>%
+  count(applicant_age) %>%
+  mutate(age_pct = (n * 100) / sum(n))
+
+idaho_age_counts
+```
+
+
+```{r}
+# PERCENTAGES OF APPLICANTS OVER 62
+idaho_over_62 <- idaho_2020 %>%
+  count(applicant_age_above_62) %>%
+  mutate(over_62_pct = (n * 100) / sum(n))
+
+idaho_over_62
+```
+
+
+```{r}
+# PERCENTAGES OF LOANS APPLIED FOR BY SEX
+idaho_sex_counts <- idaho_2020 %>%
+  count(applicant_sex) %>%
+  mutate(sex_pct = (n * 100) / sum(n))
+
+idaho_sex_counts
 ```
 
 ```{r}
-head(idaho_2020)
+# PERCENTAGES OF LOANS APPLIED FOR BY RACE--	
+#		 MIGHT BE FASTER TO USE applicant_race.1 AND JUST TRANSLATE IN ui.R?
+
+idaho_race_counts <- idaho_2020 %>%
+  count(derived_race) %>%
+  mutate(race_pct = (n * 100) / sum(n))
+
+idaho_race_counts
 ```
+
+
+# PART 1b - MINIMUM VIABLE PRODUCT - LEI & MSAs
+
 ```{r}
-str(idaho_2020)   # TO SEE DATA TYPES OF COLUMNS
-```
-```{r}
-# SEE KANBAN BOARD AT https://github.com/nss-data-science-cohort-5/hmda_shiny-crazy-eights/projects/1
-```
-
-Part 1
-Explore the HMDA dataset (https://ffiec.cfpb.gov/data-browser/data/2020?category=nationwide)
-
-Specifically for the North West region
-
-Focus on finding data that can be used to understand:
-
-demographic makeup of a region
-including ethnicity/race
-gender
-age
-disability
-familial status
-approved loans
-loan type
-dwelling category
-income
-```{r}
-# TO DO - Show what percentage and # of loans were applied for by disability
-#     BUT WHAT IS DISABILITY FIELD?
+# TO DO - Select a lending institution by its LEI, and be able to select 
+# a subset of peer institutions based on geographical area (County, State, MSA/Census Tract)
 ```
 
 ```{r}
-# TO DO - Show what percentage and # of loans were applied for by age
-
-idaho_2020 %>%
-  group_by(applicant_age) %>%
-  summarise(age_row_ct = n()
-          #  , over_62_pct = over_62_rows / rowSums() * 100
-          ) %>%
-  arrange(desc(age_row_ct)) %>%
-  ungroup()
-```
-
-```{r}
-# NORMALIZE PERCENTAGES OF APPLICANTS OVER 62, etc.
-idaho_2020 %>%
-  group_by(applicant_age_above_62) %>%
-  summarise(over_62_rows = n()) %>%
-  ungroup()
-```
-
-```{r}
-# TO DO - Show what percentage and # of loans were applied for by gender
-idaho_2020 %>%
-  group_by(applicant_sex) %>%
-  summarise(sex_row_ct = n()) %>%
-  arrange(desc(sex_row_ct)) %>%
-  ungroup()
-```
-```{r}
-idaho_2020 %>%
-  group_by(applicant_sex_observed) %>%
-  summarise(appl_sex_row_ct = n()) %>%
-  arrange(desc(appl_sex_row_ct)) %>%
-  ungroup()
-```
-
-```{r}
-# TO DO - Show what percentage and # of loans were applied for by race
-idaho_2020 %>%
-  group_by(applicant_race.1) %>%
-  summarise(appl_race_rows = n()) %>%
-  arrange(desc(appl_race_rows)) %>%
-  ungroup()
-```
-```{r}
-idaho_2020 %>%
-  group_by(derived_race) %>%
-  summarise(derived_race_rows = n()) %>%
-  arrange(desc(derived_race_rows)) %>%
-  ungroup()
-```
-
-```{r}
-# TO DO - Select a lending institution by its LEI, and be able to select a subset of peer institutions based on geographical area (County, State, MSA/Census Tract)
-```
-
-```{r}
-# TO DO - Table and visual showing select LEI compared to selected geographical area (County, State, or MSA/Census Tract)
+# TO DO - Table and visual showing select LEI compared to selected 
+# geographical area (County, State, or MSA/Census Tract)
 ```
 
 ```{r}
@@ -110,47 +81,85 @@ idaho_2020 %>%
 ```
 
 ```{r}
-# TO DO - Filter by geographical area (County, State, or MSA/Census Tract)
+# TO DO - Filter by geographical area (County, State, or MSA/Census Tract) --
+
+#		CAN FIND sf CHEAT SHEET AT https://github.com/rstudio/cheatsheets/blob/main/sf.pdf
+#		OR https://ugoproto.github.io/ugo_r_doc/pdf/sf.pdf
 ```
 
-```{r}
-```
 
 ```{r}
 # COUNT ROWS OF LEI / NORMALIZE PERCENTAGES
+idaho_lei_counts <- idaho_2020 %>%
+  count(lei) %>%
+  mutate(lei_pct = (n * 100) / sum(n))
 
+idaho_lei_counts
+```
+
+```{r}
+# SUMMARY STATISTICS ABOUT LENDERS - LEI IS MISSING FOR MANY LOANS
 idaho_2020 %>%
   group_by(lei) %>%
-  summarise(lei_rows = n()) %>%
-  arrange(desc(lei_rows)) %>%
+  summarise(total_loan_volume = sum(loan_amount)) %>%
+  arrange(desc(total_loan_volume)) %>%
   ungroup()
 ```
 
-```{r}
-# WHERE IS LOOKUP TABLE / VALUES OF RACE CODES? 
-
-# SEE https://ffiec.cfpb.gov/documentation/2020/lar-data-fields/#derived_race -
-# WILL WANT USER TO BE ABLE TO SELECT YEAR TO SCRAPE MAPPINGS
-```
 
 ```{r}
-# CREDIT SCORES ABOVE OR BELOW CUTOFFS, e.g. 700 (WHAT ARE CURRENT CRITERIA?)
+# BONUS / TO-DO - LOANS APPROVED OR DENIED BY LENDER - pivot_longer OR pivot_wider?
+idaho_approval_counts <- idaho_2020 %>%
+  group_by(lei) %>%
+  count(derived_race) %>%
+  mutate(race_pct = (n * 100) / sum(n))
 
-# TO DO - THIS WOULD BE MORE USEFUL AS A PIVOTED OR ROWWISE FUNCTION
+idaho_approval_counts
+```	
+	
+```{r}
+# LOAN DENIAL REASONS
+idaho_approval_counts <- idaho_2020 %>%
+  group_by(lei) %>%
+
+```	
+
+
+# PART 2 - OPTIONAL BONUS
+
+# PREDATORY LENDING? - DEMOGRAPHICS OF CREDIT SCORES, RATE SPREAD, DTI, LTV (ACROSS MSAs)
+
+
+# BONUS / TO DO - CREDIT SCORES ABOVE OR BELOW CUTOFFS, e.g. 700 --
+# 		WOULD THIS BE MORE USEFUL AS A PIVOTED OR ROWWISE FUNCTION
+
+# 2021 CREDIT SCORE RANGES --
+#		FICO 300-579 = POOR; 580-669 = FAIR; 670-739 = GOOD; 740-799 = VERY GOOD; 800-850 = EXCELLENT
+# FROM smartasset.com/credit-cards/what-are-the-credit-score-ranges
+
+
+```{r}
+# CREDIT SCORE TYPE BY AGE
 idaho_2020 %>%
-  group_by(applicant_race.1) %>%
+  group_by(applicant_age) %>%
   # view()
-  summarize(med_race_cred = median(applicant_credit_score_type,
+  summarize(med_age_cred = median(applicant_credit_score_type,
                                    na.rm = TRUE)) %>%
   ungroup()
 ```
 
 ```{r}
+# CREDIT SCORE TYPE OVER 62
+idaho_2020 %>%
+  group_by(applicant_age_above_62) %>%
+  # view()
+  summarize(med_over_62_cred = median(applicant_credit_score_type,
+									  na.rm = TRUE)) %>%
+  ungroup()
+```
 
-# 2021 CREDIT SCORE RANGES - 
-
-# FICO 300-579 = POOR; 580-669 = FAIR; 670-739 = GOOD; 740-799 = VERY GOOD; 800-850 = EXCELLENT
-# FROM smartasset.com/credit-cards/what-are-the-credit-score-ranges
+```{r}
+# CREDIT SCORE TYPE BY ETHNICITY
 idaho_2020 %>%
   group_by(derived_ethnicity) %>%
   # view()
@@ -160,21 +169,54 @@ idaho_2020 %>%
 ```
 
 ```{r}
+# CREDIT SCORE TYPE BY RACE
 idaho_2020 %>%
-  distinct(derived_ethnicity)
+  group_by(derived_race) %>%
+  # view()
+  summarize(med_race_cred = median(applicant_credit_score_type,
+                                   na.rm = TRUE)) %>%
+  ungroup()
 ```
 
 ```{r}
-# ARE LTVs AND DEBT-TO-INCOME RATIOS FOR MINORITIES DIFFERENT?  HOW DO LTVs VARY AMONG MSAs?
-
-     # CAN PIPE INTO view() AND SORT BY COLUMNS TO SEE VALUES - e.g. rate_spread CONTAINS 'Exempt'
-
-# TURN rate_spread INTO numeric COLUMN TO GET AGGREGATES?
-
+# CREDIT SCORE TYPE BY SEX
 idaho_2020 %>%
-  group_by(derived_ethnicity) %>%
-  filter(rate_spread != 'Exempt') %>%
+  group_by(applicant_sex) %>%
   # view()
+  summarize(med_sex_cred = median(applicant_credit_score_type,
+                                  na.rm = TRUE)) %>%
+  ungroup()
+```
+
+
+
+```{r}
+# RATE SPREAD BY AGE
+idaho_2020 %>%
+  filter(rate_spread != 'Exempt') %>%
+  group_by(applicant_age) %>%
+  summarize(med_age_rate_sprd = median(as.double(rate_spread,
+                                       na.rm = TRUE))) %>%
+  arrange(desc(med_age_rate_sprd)) %>%
+  ungroup()
+```
+
+```{r}
+# RATE SPREAD OVER 62
+idaho_2020 %>%
+  filter(rate_spread != 'Exempt') %>%
+  group_by(applicant_age_above_62) %>%
+  summarize(med_over_62_rate_sprd = median(as.double(rate_spread,
+                                           na.rm = TRUE))) %>%
+  arrange(desc(med_over_62_rate_sprd)) %>%
+  ungroup()
+```
+
+```{r}
+# RATE SPREAD BY ETHNICITY
+idaho_2020 %>%
+  filter(rate_spread != 'Exempt') %>%
+  group_by(derived_ethnicity) %>%
   summarize(med_ethn_rate_sprd = median(as.double(rate_spread,
                                         na.rm = TRUE))) %>%
   arrange(desc(med_ethn_rate_sprd)) %>%
@@ -182,11 +224,10 @@ idaho_2020 %>%
 ```
 
 ```{r}
-# TURN rate_spread INTO numeric COLUMN TO GET AGGREGATES?
-
+# RATE SPREAD BY RACE
 idaho_2020 %>%
   filter(rate_spread != 'Exempt') %>%
-  group_by(applicant_race.1) %>%
+  group_by(derived_race) %>%
   summarize(med_race_rate_sprd = median(as.double(rate_spread,
                                         na.rm = TRUE))) %>%
   arrange(desc(med_race_rate_sprd)) %>%
@@ -194,88 +235,21 @@ idaho_2020 %>%
 ```
 
 ```{r}
+# RATE SPREAD BY SEX
+idaho_2020 %>%
+  filter(rate_spread != 'Exempt') %>%
+  group_by(applicant_sex) %>%
+  summarize(med_sex_rate_sprd = median(as.double(rate_spread,
+                                       na.rm = TRUE))) %>%
+  arrange(desc(med_sex_rate_sprd)) %>%
+  ungroup()
+```
+
+
+```{r}
 # ARE INTEREST RATES DIFFERENT ON SAME LTVs FOR DIFFERENT RACES?  RATE SPREAD?
 # ORIGINATION FEES, DISCOUNT POINTS, NEGATIVE AMORTIZATION, INTEREST-ONLY PAYMENTS,
 # BALLOON PAYMENTS, ...
-
-idaho_2020 %>%
-  group_by(derived_ethnicity) %>%
-  summarize(med_ethn_ltv = median(loan_to_value_ratio,
-                                       na.rm = TRUE)) %>%
-  arrange(desc(med_ethn_ltv)) %>%
-  ungroup()
-```
-
-```{r}
-# DTI COLUMN HAS A LOT OF "30%-<36%" CHARACTERS IN IT - USE like() / filter() / grepl()?
-# wacky_dti <- 
-idaho_2020 %>%
-  filter(debt_to_income_ratio %in% '%')
-```
-```{r}
-# USE rowwise() OR pivot_longer() FOR denial_reason AND RACE / SEX / AGE?
-```
-
-```{r}
-idaho_2020 %>%
-  group_by(derived_ethnicity) %>%
-  summarize(median_dti = median(as.double(debt_to_income_ratio,
-                                na.rm = TRUE))) %>%
-  ungroup()
-```
-```{r}
-idaho_2020 %>%
-  group_by(applicant_race.1) %>%
-  summarize(med_orig = median(as.double(origination_charges,
-                                        na.rm = TRUE))) %>%
-  ungroup()
-```
-
-
-```{r}
-idaho_2020 %>%
-  group_by(applicant_race.1) %>%
-  summarize(med_points = median(as.double(discount_points,
-                                          na.rm = TRUE))) %>%
-  ungroup()
-```
-
-
-```{r}
-idaho_2020 %>%
-  group_by(applicant_race.1) %>%
-  summarize(med_neg_am = median(as.double(negative_amortization,
-                                          na.rm = TRUE))) %>%
-  ungroup()
-```
-```{r}
-idaho_2020 %>%
-  group_by(applicant_race.1) %>%
-  summarize(med_balloon = median(as.double(balloon_payment,
-                                           na.rm = TRUE))) %>%
-  ungroup()
-```
-
-```{r}
-# COULD MAKE TIBBLE OF ONLY NON-NULLS, etc, THEN JOIN?
-
-idaho_2020 %>%
-  # drop_na(applicant_race.1) %>%
-  group_by(applicant_race.1 #, na.rm = TRUE) %>%
-          ) %>%
-  summarize(median_dti = median(debt_to_income_ratio,
-                                na.rm = TRUE)) %>%
-  ungroup()
-```
-
-```{r}
-idaho_2020 %>%
-  distinct(applicant_race.1) %>%
-  drop_na()
-```
-
-```{r}
-rlang::last_trace()
 ```
 
 
