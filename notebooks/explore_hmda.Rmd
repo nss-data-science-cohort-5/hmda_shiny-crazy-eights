@@ -1,0 +1,59 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+oregon <- read_csv("..//data/state_OR.csv")
+```
+
+```{r}
+field_scrape <- read_csv("..//data/field_definitions.csv")
+
+field_scrape <- field_scrape %>%
+  filter(!is.na(description))
+```
+
+# Logic to map key values and calculate percentages for applicant race
+```{r}
+applicant_race <- oregon %>%
+  count(`applicant_race-1`) %>%
+  rename(categorical_value = `applicant_race-1`) %>%
+  mutate(categorical_value = as.character(categorical_value))
+
+applicant_race["field_name"] <- "applicant_race-1"
+
+applicant_race_total <- left_join(applicant_race, field_scrape, by = c("field_name", "categorical_value"))
+
+applicant_race_total %>%
+  select(description, n) %>%
+  mutate(percentage = (n * 100) / sum(n))
+```
+
+# Logic to map key values and calculate percentages for applicant gender(sex)
+```{r}
+applicant_sex <- oregon %>%
+  count(applicant_sex) %>%
+  rename(categorical_value = applicant_sex) %>%
+  mutate(categorical_value = as.character(categorical_value))
+
+applicant_sex["field_name"] <- "applicant_sex"
+
+applicant_sex_total <- left_join(applicant_sex, field_scrape, by = c("field_name", "categorical_value"))
+
+applicant_sex_total %>%
+  select(description, n) %>%
+  mutate(percentage = (n * 100) / sum(n))
+```
+
+# Logic to calculate percentages for applicant age
+```{r}
+oregon %>%
+  count(applicant_age) %>%
+  mutate(percentage = (n * 100) / sum(n))
+```
