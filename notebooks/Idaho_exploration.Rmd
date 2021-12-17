@@ -1,7 +1,9 @@
 
-		-- IDAHO EXPLORATION -- ROSS K.--
+		-- IDAHO EXPLORATION -- ROSS K.
+
 
 # https://github.com/nss-data-science-cohort-5/hmda_shiny-crazy-eights/blob/ross-branch/notebooks/Idaho_exploration.Rmd
+
 
 ```{r}
 library(shiny)
@@ -18,6 +20,7 @@ field_defs <- read_csv('../data/field_definitions.csv')
 field_defs <- field_defs %>%
   filter(!is.na(description))
 ```
+
 
 
 # PART 1a - MINIMUM VIABLE PRODUCT - DEMOGRAPHICS
@@ -64,32 +67,23 @@ idaho_race_counts
 ```
 
 
+
+
 # PART 1b - MINIMUM VIABLE PRODUCT - LEI & MSAs
 
 ```{r}
 # TO DO - Select a lending institution by its LEI, and be able to select 
 # a subset of peer institutions based on geographical area (County, State, MSA/Census Tract)
-```
 
-```{r}
-# TO DO - Table and visual showing select LEI compared to selected 
-# geographical area (County, State, or MSA/Census Tract)
-```
-
-```{r}
-# TO DO - Filter by lender (Legal Entity Identifier or LEI)
-```
-
-```{r}
-# TO DO - Filter by geographical area (County, State, or MSA/Census Tract) --
-
+# Might just return a table full of text data for Minimum Viable Product.
+# Bonus - could try using sf to show geographical area (County, State, or MSA/Census Tract) --
 #		CAN FIND sf CHEAT SHEET AT https://github.com/rstudio/cheatsheets/blob/main/sf.pdf
 #		OR https://ugoproto.github.io/ugo_r_doc/pdf/sf.pdf
 ```
 
 
 ```{r}
-# COUNT ROWS OF LEI / NORMALIZE PERCENTAGES
+# PERCENTAGES OF DIFFERENT LEIs
 idaho_lei_counts <- idaho_2020 %>%
   count(lei) %>%
   mutate(lei_pct = (n * 100) / sum(n))
@@ -98,7 +92,7 @@ idaho_lei_counts
 ```
 
 ```{r}
-# SUMMARY STATISTICS ABOUT LENDERS - LEI IS MISSING FOR MANY LOANS
+# TOTAL LOAN VOLUMES AMONG LENDERS
 idaho_2020 %>%
   group_by(lei) %>%
   summarise(total_loan_volume = sum(loan_amount)) %>%
@@ -108,21 +102,16 @@ idaho_2020 %>%
 
 
 ```{r}
-# BONUS / TO-DO - LOANS APPROVED OR DENIED BY LENDER - pivot_longer OR pivot_wider?
-idaho_approval_counts <- idaho_2020 %>%
-  group_by(lei) %>%
-  count(derived_race) %>%
-  mutate(race_pct = (n * 100) / sum(n))
+# BONUS / TO DO - LOANS APPROVED OR DENIED BY LENDER - action_taken COLUMN -- 
+# 			USE pivot_longer OR pivot_wider?
 
-idaho_approval_counts
 ```	
 	
 ```{r}
-# LOAN DENIAL REASONS
-idaho_approval_counts <- idaho_2020 %>%
-  group_by(lei) %>%
+# BONUS / TO DO - LOAN DENIAL REASONS
 
 ```	
+
 
 
 # PART 2 - OPTIONAL BONUS
@@ -246,8 +235,10 @@ idaho_2020 %>%
 ```
 
 
+
+
 ```{r}
-# ARE INTEREST RATES DIFFERENT ON SAME LTVs FOR DIFFERENT RACES?  RATE SPREAD?
+# ARE INTEREST RATES DIFFERENT ON SAME LTVs FOR DIFFERENT RACES?  
 # ORIGINATION FEES, DISCOUNT POINTS, NEGATIVE AMORTIZATION, INTEREST-ONLY PAYMENTS,
 # BALLOON PAYMENTS, ...
 ```
