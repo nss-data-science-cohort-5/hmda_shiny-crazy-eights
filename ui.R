@@ -11,138 +11,86 @@ library(shiny)
 
 # Define UI for application that draws a histogram
 shinyUI(fluidPage(
-  # Application title
-  titlePanel("HMDA App"),
-  
-  fluidRow(
-    column(
-      3,
-      h4("Applicant Info"),
-      selectInput("applicant_gender", "Sex",
-                  list("Male", "Female"),
-                  selected = "Female"),
-      br(),
-      selectInput(
-        "applicant_race", "Race",
-        list("White",
-             "American Indian or Alaska Native",
-             "Asian",
-             "Black or African American",
-             "Native Hawaiian or Other Pacific Islander"),
-        selected = "Asian"
-      ),
-      br(),
-      selectInput(
-        "applicant_age", "Age",
-        list("<25",
-             "25-34",
-             "35-44",
-             "45-54",
-             "55-64"),
-        selected = "35-44"
-      )
-    ),
-    column(
-      3,
-      h4("Geographic Area"),
-      selectInput("state", "State",
-                  c(
-                    "Idaho" = "ID",
-                    "Oregon" = "OR",
-                    "Washington" = "WA"
-                  )),
-      br(),
-      selectInput("county", "County", 
-                  # choices = "16065",
-                  choices = county_list),
-      br(),
-      selectInput(
-        "census_tract", "MSA/Census Tract",
-        choices = census_tract_list
-        # choices = '16065950100'
-      )
-    ),
-    column(   # OUTPUT LENDER NAME ON ui SIDE? - lei_name 
-      3,
-      h4("Lender Info"),
-      selectInput("lei", "LEI", 
-                 # choices = '549300FGXN1K3HLB1R50'
-                choices = lei_list
-                )
-    ),
-    column(
-      3,
-      h4("Loan Info"),
-      selectInput(
-        "loan_type",
-        "Loan Type",
-        list("FHA:First Lien",
-             "VA:First Lien",
-             "Conventional:First Lien")
-      ),
-      br(),
-      selectInput(
-        "purchaser_type",
-        "Purchaser Type",
-        c(
-          "Not Applicable" = 0,
-          "Fannie Mae" = 1,
-          "Ginnie Mae" = 2,
-          "Freddie Mac" = 3,
-          "Farmer Mac" = 4,
-          "Private Securitizer" = 5
-        )
-      ),
-      br(),
-      selectInput(
-        "dwelling_category_type",
-        "Dwelling Category/Type",
-        list(
-          "Single Family (1-4 Units):Site-Built",
-          "Single Family (1-4 Units):Manufactured",
-          "Multifamily:Site-Built"
-        )
-      )
+    # Application title
+    titlePanel(
+      h1("HMDA App", align = "center")
     ),
     
-    br(),  # hr()?
-    
-    column(
-      width = 12,
-      fluidRow(
+    fluidRow(
         column(
-          12,
-          h3(uiOutput("lei_name")),
-          uiOutput("state"),
-          uiOutput("county"),
-          uiOutput("census_tract"),
-          uiOutput("lei"),
-          uiOutput("loan_type"),
-          uiOutput("purchase_type"),
-          uiOutput("dwelling_category_type"),
-          uiOutput("applicant_gender"),
-          uiOutput("applicant_race"),
-          uiOutput("applicant_age")
-        )  
-      ),
-      
-      fluidRow(
-        column(width = 12, 
-               dataTableOutput("applicant_race_percentage")
+            6,
+            h4("Geographic Area"),
+            selectInput("state", 
+                        "State",
+                        choices = c("All", state_list)),
+            
+            br(),
+            
+            selectInput("county", 
+                        "County", 
+                        choices = c("All", county_list)),
+            br(),
+            
+            selectInput("census_tract", 
+                        "MSA/Census Tract",
+                        choices = c("All", census_tract_list))
+        ),
+        column(
+            6,
+            h4("Lender Info"),
+            selectInput("lei", 
+                        "LEI", 
+                        choices = c("All", lei_list))
         )
-      ),
-      
-      fluidRow(
-        column(width = 12,
-               dataTableOutput("applicant_gender_percentage")
+    ),
+        
+        hr(),
+        
+        fluidRow(
+            column(
+                width = 12,
+                align = "center",
+                h3(uiOutput("lei_name"))
+            )
+            
+        ),
+        
+        fluidRow(
+          column(width = 12,
+            h3(uiOutput("race_label")))
+        ),
+        
+        fluidRow(    
+          column(width = 12, 
+                 dataTableOutput("applicant_race_percentage")
+          )
+          
+        ),
+    
+        br(),
+    
+        fluidRow(
+          column(width = 12,
+                 h3(uiOutput("gender_label")))
+          ),
+        
+        fluidRow(
+          column(width = 12,
+                 dataTableOutput("applicant_gender_percentage")
+          )
+        ),
+    
+        br(),
+    
+        fluidRow(
+          column(width = 12,
+             h3(uiOutput("age_label")))
+          ),
+        
+        fluidRow(
+          column(width = 12,
+                 dataTableOutput("applicant_age_percentage")
+          )
         )
-      ),
-      
-      fluidRow(
-        column(width = 12,
-               dataTableOutput("applicant_age_percentage")
-        )
-      ),
     )
-  )
-))
+)
